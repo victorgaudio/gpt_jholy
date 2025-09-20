@@ -1,18 +1,21 @@
 import React, { useState, useRef, useEffect } from "react";
-import SlashCommandsButton, {
+import {
   SlashCommands,
   useSlashCommands,
 } from "./SlashCommands";
 import debounce from "lodash.debounce";
 import { PaperPlaneRight } from "@phosphor-icons/react";
 import StopGenerationButton from "./StopGenerationButton";
-import AvailableAgentsButton, {
+import {
   AvailableAgents,
   useAvailableAgents,
 } from "./AgentMenu";
 import TextSizeButton from "./TextSizeMenu";
-import LLMSelectorAction from "./LLMSelector/action";
-import SpeechToText from "./SpeechToText";
+// Temporariamente comentados
+// import SlashCommandsButton from "./SlashCommands";
+// import AvailableAgentsButton from "./AgentMenu";
+// import LLMSelectorAction from "./LLMSelector/action";
+// import SpeechToText from "./SpeechToText";
 import { Tooltip } from "react-tooltip";
 import AttachmentManager from "./Attachments";
 import AttachItem from "./AttachItem";
@@ -320,19 +323,23 @@ export default function PromptInput({
             <div className="flex justify-between py-3.5 mx-3 mb-1">
               <div className="flex gap-x-2">
                 <AttachItem />
-                <SlashCommandsButton
+                {/* Temporariamente ocultados - Comandos slash */}
+                {/* <SlashCommandsButton
                   showing={showSlashCommand}
                   setShowSlashCommand={setShowSlashCommand}
-                />
-                <AvailableAgentsButton
+                /> */}
+                {/* Temporariamente ocultados - Agentes disponíveis */}
+                {/* <AvailableAgentsButton
                   showing={showAgents}
                   setShowAgents={setShowAgents}
-                />
+                /> */}
                 <TextSizeButton />
-                <LLMSelectorAction />
+                {/* Temporariamente ocultado - Seletor de LLM */}
+                {/* <LLMSelectorAction /> */}
               </div>
               <div className="flex gap-x-2">
-                <SpeechToText sendCommand={sendCommand} />
+                {/* Temporariamente ocultado - Voz para texto */}
+                {/* <SpeechToText sendCommand={sendCommand} /> */}
               </div>
             </div>
           </div>
