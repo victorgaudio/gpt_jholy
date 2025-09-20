@@ -263,7 +263,6 @@ const System = {
       {
         method: "GET",
         cache: "no-cache",
-        headers: baseHeaders(),
       }
     )
       .then((res) => res.json())
