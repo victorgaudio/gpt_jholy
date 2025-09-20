@@ -167,6 +167,9 @@ export default {
     mobileConnections: () => {
       return `/settings/mobile-connections`;
     },
+    menuVisibility: () => {
+      return `/settings/menu-visibility`;
+    },
   },
   agents: {
     builder: () => {

@@ -23,6 +23,7 @@ import System from "@/models/system";
 import Option from "./MenuOption";
 import { CanViewChatHistoryProvider } from "../CanViewChatHistory";
 import useAppVersion from "@/hooks/useAppVersion";
+import MenuSettings from "@/models/menuSettings";
 
 export default function SettingsSidebar() {
   const { t } = useTranslation();
@@ -219,42 +220,64 @@ const SidebarOptions = ({ user = null, t }) => (
           btnText={t("settings.ai-providers")}
           icon={<Gear className="h-5 w-5 flex-shrink-0" />}
           user={user}
+          hidden={!MenuSettings.isMenuItemVisible("ai-providers")}
           childOptions={[
             {
               btnText: t("settings.llm"),
               href: paths.settings.llmPreference(),
               flex: true,
               roles: ["admin"],
+              hidden: !MenuSettings.isMenuItemVisible("ai-providers", "llm"),
             },
             {
               btnText: t("settings.vector-database"),
               href: paths.settings.vectorDatabase(),
               flex: true,
               roles: ["admin"],
+              hidden: !MenuSettings.isMenuItemVisible(
+                "ai-providers",
+                "vector-database"
+              ),
             },
             {
               btnText: t("settings.embedder"),
               href: paths.settings.embedder.modelPreference(),
               flex: true,
               roles: ["admin"],
+              hidden: !MenuSettings.isMenuItemVisible(
+                "ai-providers",
+                "embedder"
+              ),
             },
             {
               btnText: t("settings.text-splitting"),
               href: paths.settings.embedder.chunkingPreference(),
               flex: true,
               roles: ["admin"],
+              hidden: !MenuSettings.isMenuItemVisible(
+                "ai-providers",
+                "text-splitting"
+              ),
             },
             {
               btnText: t("settings.voice-speech"),
               href: paths.settings.audioPreference(),
               flex: true,
               roles: ["admin"],
+              hidden: !MenuSettings.isMenuItemVisible(
+                "ai-providers",
+                "voice-speech"
+              ),
             },
             {
               btnText: t("settings.transcription"),
               href: paths.settings.transcriptionPreference(),
               flex: true,
               roles: ["admin"],
+              hidden: !MenuSettings.isMenuItemVisible(
+                "ai-providers",
+                "transcription"
+              ),
             },
           ]}
         />
@@ -262,19 +285,24 @@ const SidebarOptions = ({ user = null, t }) => (
           btnText={t("settings.admin")}
           icon={<UserCircleGear className="h-5 w-5 flex-shrink-0" />}
           user={user}
+          hidden={!MenuSettings.isMenuItemVisible("admin")}
           childOptions={[
             {
               btnText: t("settings.users"),
               href: paths.settings.users(),
               roles: ["admin", "manager"],
+              hidden: !MenuSettings.isMenuItemVisible("admin", "users"),
             },
             {
               btnText: t("settings.workspaces"),
               href: paths.settings.workspaces(),
               roles: ["admin", "manager"],
+              hidden: !MenuSettings.isMenuItemVisible("admin", "workspaces"),
             },
             {
-              hidden: !canViewChatHistory,
+              hidden:
+                !canViewChatHistory ||
+                !MenuSettings.isMenuItemVisible("admin", "workspace-chats"),
               btnText: t("settings.workspace-chats"),
               href: paths.settings.chats(),
               flex: true,
@@ -284,6 +312,7 @@ const SidebarOptions = ({ user = null, t }) => (
               btnText: t("settings.invites"),
               href: paths.settings.invites(),
               roles: ["admin", "manager"],
+              hidden: !MenuSettings.isMenuItemVisible("admin", "invites"),
             },
           ]}
         />
@@ -294,28 +323,42 @@ const SidebarOptions = ({ user = null, t }) => (
           user={user}
           flex={true}
           roles={["admin"]}
+          hidden={!MenuSettings.isMenuItemVisible("agent-skills")}
         />
         <Option
           btnText="Community Hub"
           icon={<Globe className="h-5 w-5 flex-shrink-0" />}
+          hidden={!MenuSettings.isMenuItemVisible("community-hub")}
           childOptions={[
             {
               btnText: "Explore Trending",
               href: paths.communityHub.trending(),
               flex: true,
               roles: ["admin"],
+              hidden: !MenuSettings.isMenuItemVisible(
+                "community-hub",
+                "explore-trending"
+              ),
             },
             {
               btnText: "Your Account",
               href: paths.communityHub.authentication(),
               flex: true,
               roles: ["admin"],
+              hidden: !MenuSettings.isMenuItemVisible(
+                "community-hub",
+                "your-account"
+              ),
             },
             {
               btnText: "Import Item",
               href: paths.communityHub.importItem(),
               flex: true,
               roles: ["admin"],
+              hidden: !MenuSettings.isMenuItemVisible(
+                "community-hub",
+                "import-item"
+              ),
             },
           ]}
         />
@@ -323,24 +366,34 @@ const SidebarOptions = ({ user = null, t }) => (
           btnText={t("settings.customization")}
           icon={<PencilSimpleLine className="h-5 w-5 flex-shrink-0" />}
           user={user}
+          hidden={!MenuSettings.isMenuItemVisible("customization")}
           childOptions={[
             {
               btnText: t("settings.interface"),
               href: paths.settings.interface(),
               flex: true,
               roles: ["admin", "manager"],
+              hidden: !MenuSettings.isMenuItemVisible(
+                "customization",
+                "interface"
+              ),
             },
             {
               btnText: t("settings.branding"),
               href: paths.settings.branding(),
               flex: true,
               roles: ["admin", "manager"],
+              hidden: !MenuSettings.isMenuItemVisible(
+                "customization",
+                "branding"
+              ),
             },
             {
               btnText: t("settings.chat"),
               href: paths.settings.chat(),
               flex: true,
               roles: ["admin", "manager"],
+              hidden: !MenuSettings.isMenuItemVisible("customization", "chat"),
             },
           ]}
         />
@@ -348,9 +401,12 @@ const SidebarOptions = ({ user = null, t }) => (
           btnText={t("settings.tools")}
           icon={<Toolbox className="h-5 w-5 flex-shrink-0" />}
           user={user}
+          hidden={!MenuSettings.isMenuItemVisible("tools")}
           childOptions={[
             {
-              hidden: !canViewChatHistory,
+              hidden:
+                !canViewChatHistory ||
+                !MenuSettings.isMenuItemVisible("tools", "embeds"),
               btnText: t("settings.embeds"),
               href: paths.settings.embedChatWidgets(),
               flex: true,
@@ -361,24 +417,44 @@ const SidebarOptions = ({ user = null, t }) => (
               href: paths.settings.logs(),
               flex: true,
               roles: ["admin"],
+              hidden: !MenuSettings.isMenuItemVisible("tools", "event-logs"),
             },
             {
               btnText: t("settings.api-keys"),
               href: paths.settings.apiKeys(),
               flex: true,
               roles: ["admin"],
+              hidden: !MenuSettings.isMenuItemVisible("tools", "api-keys"),
             },
             {
               btnText: t("settings.system-prompt-variables"),
               href: paths.settings.systemPromptVariables(),
               flex: true,
               roles: ["admin"],
+              hidden: !MenuSettings.isMenuItemVisible(
+                "tools",
+                "system-prompt-variables"
+              ),
             },
             {
               btnText: t("settings.browser-extension"),
               href: paths.settings.browserExtension(),
               flex: true,
               roles: ["admin", "manager"],
+              hidden: !MenuSettings.isMenuItemVisible(
+                "tools",
+                "browser-extension"
+              ),
+            },
+            {
+              btnText: "Visibilidade do Menu",
+              href: paths.settings.menuVisibility(),
+              flex: true,
+              roles: ["admin"],
+              hidden: !MenuSettings.isMenuItemVisible(
+                "tools",
+                "menu-visibility"
+              ),
             },
           ]}
         />
@@ -389,7 +465,7 @@ const SidebarOptions = ({ user = null, t }) => (
           user={user}
           flex={true}
           roles={["admin", "manager"]}
-          hidden={user?.role}
+          hidden={user?.role || !MenuSettings.isMenuItemVisible("security")}
         />
         <HoldToReveal key="exp_features">
           <Option
@@ -399,6 +475,7 @@ const SidebarOptions = ({ user = null, t }) => (
             user={user}
             flex={true}
             roles={["admin"]}
+            hidden={!MenuSettings.isMenuItemVisible("experimental-features")}
           />
         </HoldToReveal>
       </>

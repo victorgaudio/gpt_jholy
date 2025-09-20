@@ -92,6 +92,7 @@ const SystemPromptVariables = lazy(
 const MobileConnections = lazy(
   () => import("@/pages/GeneralSettings/MobileConnections")
 );
+const MenuVisibility = lazy(() => import("@/pages/Admin/MenuVisibility"));
 
 export default function App() {
   return (
@@ -271,6 +272,10 @@ export default function App() {
                   <Route
                     path="/settings/mobile-connections"
                     element={<ManagerRoute Component={MobileConnections} />}
+                  />
+                  <Route
+                    path="/settings/menu-visibility"
+                    element={<AdminRoute Component={MenuVisibility} />}
                   />
                 </Routes>
                 <ToastContainer />

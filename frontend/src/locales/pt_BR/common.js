@@ -79,7 +79,7 @@ const TRANSLATIONS = {
     "workspace-chats": "Chats do Workspace",
     customization: "Personalização",
     interface: "Preferências de UI",
-    branding: "Marca e Etiqueta Branca",
+    branding: "Branding e White Label",
     chat: "Chat",
     "api-keys": "API de Desenvolvedor",
     llm: "LLM",
@@ -150,8 +150,7 @@ const TRANSLATIONS = {
     checklist: {
       title: "Primeiros Passos",
       tasksLeft: "tarefas restantes",
-      completed:
-        "Você está no caminho para se tornar um expert em JholyGPT!",
+      completed: "Você está no caminho para se tornar um expert em JholyGPT!",
       dismiss: "fechar",
       tasks: {
         create_workspace: {
