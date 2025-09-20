@@ -11,7 +11,7 @@ const UserIcon = memo(({ role }) => {
       {role === "user" && <RenderUserPfp pfp={pfp} />}
       {role !== "user" && (
         <img
-          src={WorkspaceDefaultPfp}
+          src="/chat.png"
           alt="system profile picture"
           className="flex items-center justify-center rounded-full border-solid border border-white/40 light:border-theme-sidebar-border light:bg-theme-bg-chat-input"
         />
