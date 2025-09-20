@@ -1,0 +1,27 @@
+# Exemplo de configuração para Terraform
+# Copie este arquivo para terraform.tfvars e ajuste os valores
+
+# Token da API do DigitalOcean
+# Obtenha em: https://cloud.digitalocean.com/account/api/tokens
+do_token = "YOUR_DIGITALOCEAN_API_TOKEN_HERE"
+
+# Nome do droplet (será usado em todos os recursos)
+droplet_name = "anythingllm-production"
+
+# Região do DigitalOcean
+# Opções: nyc1, nyc3, ams3, sfo3, sgp1, lon1, fra1, tor1, blr1, etc.
+# Veja todas em: https://docs.digitalocean.com/products/platform/availability-matrix/
+region = "nyc3"
+
+# Tamanho do droplet
+# s-1vcpu-1gb      - $6/mês   - 1 GB RAM (mínimo, pode ser lento)
+# s-2vcpu-2gb      - $12/mês  - 2 GB RAM (recomendado para testes)
+# s-2vcpu-4gb      - $24/mês  - 4 GB RAM (recomendado para produção)
+# s-4vcpu-8gb      - $48/mês  - 8 GB RAM (para uso intensivo)
+size = "s-2vcpu-2gb"
+
+# IDs das chaves SSH (opcional, mas recomendado)
+# Para obter os IDs: doctl compute ssh-key list
+# Ou via API: curl -X GET -H "Authorization: Bearer YOUR_TOKEN" "https://api.digitalocean.com/v2/account/keys"
+# ssh_key_ids = ["12345678", "87654321"]
+ssh_key_ids = []

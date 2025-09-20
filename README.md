@@ -168,6 +168,37 @@ Mintplex Labs & the community maintain a number of deployment methods, scripts, 
 
 ## How to setup for development
 
+### 🚀 Quick Start (Lean Setup - Recommended)
+
+For a fast, lean setup using online APIs instead of heavy local models:
+
+```bash
+# Automated setup (2 minutes)
+./scripts/setup-simple.sh
+
+# Start development (opens 3 terminals on macOS)
+./scripts/manage-env-simple.sh dev
+
+# Check status
+./scripts/manage-env-simple.sh status
+```
+
+**Requirements:**
+- OpenAI API key ([get yours here](https://platform.openai.com/api-keys))
+- Node.js ≥ 18 and Yarn ≥ 1.22
+
+**Result:**
+- Frontend: http://localhost:3004 (or first available port)
+- Backend: http://localhost:3002/api
+- Uses OpenAI GPT-4o-mini (cost-effective for development)
+- Zero friction for Digital Ocean deployment
+
+📖 **[Complete Development Guide](docs/feat_deploy_local/desenvolvimento-local.md)** | 🔧 **[Troubleshooting](docs/feat_deploy_local/troubleshooting-cors-portas.md)**
+
+> **📁 Documentation Structure**: Branch-specific docs are organized in `docs/[branch-name]/` to track development progress per feature. Current branch docs: `docs/feat_deploy_local/`
+
+### 📋 Manual Setup
+
 - `yarn setup` To fill in the required `.env` files you'll need in each of the application sections (from root of repo).
   - Go fill those out before proceeding. Ensure `server/.env.development` is filled or else things won't work right.
 - `yarn dev:server` To boot the server locally (from root of repo).

@@ -1,0 +1,77 @@
+version: '3.8'
+
+name: anythingllm-production
+
+networks:
+  anythingllm-prod:
+    driver: bridge
+
+services:
+  anythingllm:
+    image: mintplexlabs/anythingllm:latest
+    container_name: anythingllm-production
+    cap_add:
+      - SYS_ADMIN
+    volumes:
+      # Configurações de produção
+      - "./docker/.env.production:/app/server/.env"
+      # Storage persistente
+      - "anythingllm_storage:/app/server/storage"
+    ports:
+      - "3001:3001"
+    environment:
+      - STORAGE_DIR=/app/server/storage
+    networks:
+      - anythingllm-prod
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    depends_on:
+      - postgres
+    profiles:
+      - production
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: anythingllm-postgres-prod
+    environment:
+      POSTGRES_DB: anythingllm
+      POSTGRES_USER: anythingllm
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-anythingllm_secure_password}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - anythingllm-prod
+    restart: always
+    profiles:
+      - production
+
+  # Reverse proxy opcional (para produção)
+  nginx:
+    image: nginx:alpine
+    container_name: anythingllm-nginx
+    volumes:
+      - "./nginx/nginx.conf:/etc/nginx/nginx.conf:ro"
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - anythingllm-prod
+    depends_on:
+      - anythingllm
+    restart: always
+    profiles:
+      - nginx
+
+volumes:
+  anythingllm_storage:
+    driver: local
+  postgres_data:

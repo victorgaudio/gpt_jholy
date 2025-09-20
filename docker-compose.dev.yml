@@ -1,0 +1,78 @@
+version: '3.8'
+
+name: anythingllm-dev
+
+networks:
+  anythingllm-dev:
+    driver: bridge
+
+services:
+  anythingllm:
+    container_name: anythingllm-dev
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+      args:
+        ARG_UID: ${UID:-1000}
+        ARG_GID: ${GID:-1000}
+    cap_add:
+      - SYS_ADMIN
+    volumes:
+      # Configurações
+      - "./docker/.env:/app/server/.env"
+      # Storage persistente
+      - "./server/storage:/app/server/storage"
+      - "./collector/hotdir:/app/collector/hotdir"
+      - "./collector/outputs:/app/collector/outputs"
+    user: "${UID:-1000}:${GID:-1000}"
+    ports:
+      - "3001:3001"
+    env_file:
+      - docker/.env
+    networks:
+      - anythingllm-dev
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Serviço opcional para PostgreSQL local (alternativa ao SQLite)
+  postgres:
+    image: postgres:15-alpine
+    container_name: anythingllm-postgres-dev
+    environment:
+      POSTGRES_DB: anythingllm
+      POSTGRES_USER: anythingllm
+      POSTGRES_PASSWORD: anythingllm_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - anythingllm-dev
+    restart: unless-stopped
+    profiles:
+      - postgres
+
+  # Serviço opcional para Ollama local
+  ollama:
+    image: ollama/ollama:latest
+    container_name: anythingllm-ollama-dev
+    volumes:
+      - ollama_data:/root/.ollama
+    ports:
+      - "11434:11434"
+    networks:
+      - anythingllm-dev
+    restart: unless-stopped
+    profiles:
+      - ollama
+
+volumes:
+  postgres_data:
+  ollama_data:

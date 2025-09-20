@@ -12,18 +12,41 @@ AnythingLLM is a full-stack application that enables users to turn documents int
 
 ## Development Commands
 
-### Initial Setup
+### Quick Start (Lean Setup)
 ```bash
-yarn setup                    # Install dependencies and configure ENV files for all modules
-yarn prisma:setup            # Generate Prisma client, run migrations, and seed database
+scripts/setup-simple.sh         # Setup in 2 minutes with API keys
+scripts/manage-env-simple.sh dev # Start development (opens multiple terminals)
+scripts/manage-env-simple.sh status # Check services status
+scripts/manage-env-simple.sh stop   # Stop all services
 ```
 
-### Development (run each in separate terminals)
+### Initial Setup
 ```bash
-yarn dev:server              # Start server in development mode (port varies, check ENV)
-yarn dev:frontend            # Start frontend dev server (typically port 3000)
-yarn dev:collector           # Start document collector (typically port 8888)
+scripts/setup-simple.sh      # Complete setup with API configuration
+# OR manual setup:
+yarn setup                   # Install dependencies and configure ENV files for all modules
+yarn prisma:setup           # Generate Prisma client, run migrations, and seed database
+```
+
+### Development Environments
+
+#### Native Development (Recommended)
+```bash
+yarn dev:server              # Start server in development mode (port 3002)
+yarn dev:frontend            # Start frontend dev server (port 3000 or first available)
+yarn dev:collector           # Start document collector (port 8888)
 yarn dev:all                 # Start all three services concurrently
+```
+
+#### Docker Development (Optional)
+```bash
+docker-compose -f docker-compose.light.yml up -d                  # Lean development container
+docker-compose -f docker-compose.light.yml --profile postgres up -d # With PostgreSQL
+```
+
+#### Production Testing (Local)
+```bash
+docker-compose -f docker-compose.production.yml --profile production up -d
 ```
 
 ### Production Build
@@ -44,6 +67,13 @@ yarn prisma:generate         # Generate Prisma client after schema changes
 yarn prisma:migrate          # Create and apply new migration
 yarn prisma:seed             # Seed database with initial data
 yarn prisma:reset            # Reset database (truncate and re-migrate)
+```
+
+### Digital Ocean Deployment
+```bash
+cd cloud-deployments/digitalocean/terraform/
+cp terraform.tfvars.example terraform.tfvars  # Configure your settings
+terraform init && terraform plan && terraform apply
 ```
 
 ## Architecture Overview
@@ -106,13 +136,36 @@ yarn prisma:reset            # Reset database (truncate and re-migrate)
 
 ## Environment Configuration
 
-Each module requires its own `.env` file:
-- `server/.env.development` - Server configuration (database, LLM keys, etc.)
-- `frontend/.env` - Frontend configuration
-- `collector/.env` - Collector configuration
-- `docker/.env` - Docker deployment configuration
+### Lean Development Setup
+- `server/.env.development` - Main config with OpenAI API key
+- `server/.env.local` - Optimized lean configuration (alternative)
+- `frontend/.env` - Frontend configuration (auto-configured)
+- `collector/.env` - Collector configuration (auto-configured)
 
-Use `yarn setup:envs` to copy example files, then fill in required values.
+### Production
+- `docker/.env.production` - Production config (same LLM provider as dev)
+
+**Key difference**: Development uses SQLite + OpenAI, Production uses PostgreSQL + OpenAI
+No configuration changes needed for LLM providers between environments.
+
+**Port Configuration**:
+- Default: Server 3001, Frontend 3000
+- Alternative (if conflicts): Server 3002, Frontend auto-detects free port
+- Always update frontend/.env when changing server port
+
+## Documentation Structure
+
+### Branch-Specific Documentation
+- All development documentation is organized by branch: `docs/[branch-name]/`
+- Current branch documentation: `docs/feat_deploy_local/`
+- This approach tracks development progress and decisions per feature
+- When merging branches, relevant docs can be moved to main docs folder
+
+### Documentation Files
+- `sessao-[branch-name].md` - Complete session documentation with commit messages
+- `desenvolvimento-local.md` - Local development guide
+- `troubleshooting-*.md` - Specific troubleshooting guides
+- `prompts-utilizados.md` - Prompt knowledge base for the session
 
 ## Code Style
 
@@ -120,3 +173,58 @@ Use `yarn setup:envs` to copy example files, then fill in required values.
 - Hermes parser for JavaScript/JSX
 - Flow type annotations supported but not required
 - Run `yarn lint` before committing changes
+
+## Troubleshooting e Debug
+
+### Conflitos de Porta
+```bash
+# Verificar portas em uso
+lsof -i :3001 :3002 :3000 :8888
+
+# Server alternativo se 3001 ocupada
+echo "SERVER_PORT=3002" >> server/.env.development
+echo "VITE_API_BASE='http://localhost:3002/api'" > frontend/.env
+```
+
+### Problemas CORS
+```bash
+# Verificar configuração frontend
+cat frontend/.env | grep VITE_API_BASE
+
+# Deve apontar para mesma porta do servidor
+# Se servidor na 3002, frontend deve usar:
+VITE_API_BASE='http://localhost:3002/api'
+```
+
+### Debug com Playwright
+```bash
+# Teste visual automatizado
+node test-frontend.js
+
+# Debug detalhado
+node debug-frontend.js
+```
+
+### Comandos de Emergency Reset
+```bash
+# Parar todos os processos
+killall node
+
+# Reset configurações
+rm -f server/.env.development frontend/.env collector/.env
+yarn setup
+
+# Restart serviços
+./scripts/manage-env-simple.sh dev
+```
+
+### Validação Rápida
+```bash
+# Status de todos os serviços
+./scripts/manage-env-simple.sh status
+
+# Health check manual
+curl http://localhost:3002/api/ping  # Server
+curl http://localhost:8888/ping      # Collector
+open http://localhost:3004           # Frontend
+```

@@ -1,0 +1,169 @@
+terraform {
+  required_version = ">= 1.0.0"
+
+  required_providers {
+    digitalocean = {
+      source  = "digitalocean/digitalocean"
+      version = "~> 2.0"
+    }
+  }
+}
+
+# Variáveis configuráveis
+variable "do_token" {
+  description = "DigitalOcean API Token"
+  type        = string
+  sensitive   = true
+}
+
+variable "droplet_name" {
+  description = "Nome do droplet"
+  type        = string
+  default     = "anythingllm-production"
+}
+
+variable "region" {
+  description = "Região do DigitalOcean"
+  type        = string
+  default     = "nyc3"
+}
+
+variable "size" {
+  description = "Tamanho do droplet"
+  type        = string
+  default     = "s-2vcpu-2gb"
+}
+
+variable "ssh_key_ids" {
+  description = "IDs das chaves SSH (opcional)"
+  type        = list(string)
+  default     = []
+}
+
+provider "digitalocean" {
+  token = var.do_token
+}
+
+# Buscar a versão mais recente do Ubuntu LTS
+data "digitalocean_image" "ubuntu" {
+  slug = "ubuntu-24-04-x64"
+}
+
+# Criar droplet
+resource "digitalocean_droplet" "anythingllm" {
+  image     = data.digitalocean_image.ubuntu.id
+  name      = var.droplet_name
+  region    = var.region
+  size      = var.size
+  ssh_keys  = var.ssh_key_ids
+
+  user_data = templatefile("${path.module}/user_data_optimized.tpl", {
+    env_content = local.formatted_env_content
+  })
+
+  tags = ["anythingllm", "production"]
+}
+
+# Configuração do firewall
+resource "digitalocean_firewall" "anythingllm" {
+  name = "${var.droplet_name}-firewall"
+
+  droplet_ids = [digitalocean_droplet.anythingllm.id]
+
+  # SSH
+  inbound_rule {
+    protocol         = "tcp"
+    port_range       = "22"
+    source_addresses = ["0.0.0.0/0", "::/0"]
+  }
+
+  # HTTP
+  inbound_rule {
+    protocol         = "tcp"
+    port_range       = "80"
+    source_addresses = ["0.0.0.0/0", "::/0"]
+  }
+
+  # HTTPS
+  inbound_rule {
+    protocol         = "tcp"
+    port_range       = "443"
+    source_addresses = ["0.0.0.0/0", "::/0"]
+  }
+
+  # AnythingLLM (temporário para setup)
+  inbound_rule {
+    protocol         = "tcp"
+    port_range       = "3001"
+    source_addresses = ["0.0.0.0/0", "::/0"]
+  }
+
+  # Permitir todo tráfego de saída
+  outbound_rule {
+    protocol              = "tcp"
+    port_range            = "1-65535"
+    destination_addresses = ["0.0.0.0/0", "::/0"]
+  }
+
+  outbound_rule {
+    protocol              = "udp"
+    port_range            = "1-65535"
+    destination_addresses = ["0.0.0.0/0", "::/0"]
+  }
+
+  outbound_rule {
+    protocol              = "icmp"
+    destination_addresses = ["0.0.0.0/0", "::/0"]
+  }
+}
+
+# Volume para armazenamento persistente (opcional)
+resource "digitalocean_volume" "anythingllm_storage" {
+  region                  = var.region
+  name                    = "${var.droplet_name}-storage"
+  size                    = 20
+  initial_filesystem_type = "ext4"
+  description             = "Armazenamento persistente para AnythingLLM"
+}
+
+# Anexar volume ao droplet
+resource "digitalocean_volume_attachment" "anythingllm_storage" {
+  droplet_id = digitalocean_droplet.anythingllm.id
+  volume_id  = digitalocean_volume.anythingllm_storage.id
+}
+
+# Processar arquivo .env
+locals {
+  env_content = file("../../../docker/.env.production")
+  formatted_env_content = join("\n", [
+    for line in split("\n", local.env_content) :
+    line
+    if !(
+      (substr(line, 0, 1) == "#") ||
+      (substr(line, 0, 3) == "UID") ||
+      (substr(line, 0, 3) == "GID") ||
+      (line == "")
+    )
+  ])
+}
+
+# Outputs
+output "droplet_ip" {
+  description = "IP público do droplet"
+  value       = digitalocean_droplet.anythingllm.ipv4_address
+}
+
+output "droplet_url" {
+  description = "URL para acessar AnythingLLM"
+  value       = "http://${digitalocean_droplet.anythingllm.ipv4_address}:3001"
+}
+
+output "ssh_connection" {
+  description = "Comando para conectar via SSH"
+  value       = "ssh root@${digitalocean_droplet.anythingllm.ipv4_address}"
+}
+
+output "volume_mount_path" {
+  description = "Caminho do volume montado"
+  value       = "/mnt/${digitalocean_volume.anythingllm_storage.name}"
+}
