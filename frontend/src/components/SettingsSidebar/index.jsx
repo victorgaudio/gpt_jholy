@@ -121,7 +121,7 @@ export default function SettingsSidebar() {
                     >
                       {t("settings.privacy")}
                     </Link>
-                    <AppVersion />
+                    {/* <AppVersion /> */}
                   </div>
                 </div>
               </div>
@@ -172,7 +172,7 @@ export default function SettingsSidebar() {
                   >
                     {t("settings.privacy")}
                   </Link>
-                  <AppVersion />
+                  {/* <AppVersion /> */}
                 </div>
               </div>
             </div>
