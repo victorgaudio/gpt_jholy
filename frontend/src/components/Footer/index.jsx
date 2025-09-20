@@ -55,9 +55,9 @@ export default function Footer() {
               target="_blank"
               rel="noreferrer"
               className="transition-all duration-300 p-2 rounded-full bg-theme-sidebar-footer-icon hover:bg-theme-sidebar-footer-icon-hover"
-              aria-label="Find us on GitHub"
+              aria-label="Encontre-nos no GitHub"
               data-tooltip-id="footer-item"
-              data-tooltip-content="View source code on GitHub"
+              data-tooltip-content="Ver código fonte no GitHub"
             >
               <GithubLogo
                 weight="fill"
@@ -72,9 +72,9 @@ export default function Footer() {
               target="_blank"
               rel="noreferrer"
               className="transition-all duration-300 p-2 rounded-full bg-theme-sidebar-footer-icon hover:bg-theme-sidebar-footer-icon-hover"
-              aria-label="Docs"
+              aria-label="Documentação"
               data-tooltip-id="footer-item"
-              data-tooltip-content="Open AnythingLLM help docs"
+              data-tooltip-content="Abrir documentação de ajuda do JholyGPT"
             >
               <BookOpen
                 weight="fill"
@@ -89,9 +89,9 @@ export default function Footer() {
               target="_blank"
               rel="noreferrer"
               className="transition-all duration-300 p-2 rounded-full bg-theme-sidebar-footer-icon hover:bg-theme-sidebar-footer-icon-hover"
-              aria-label="Join our Discord server"
+              aria-label="Entrar no nosso servidor Discord"
               data-tooltip-id="footer-item"
-              data-tooltip-content="Join the AnythingLLM Discord"
+              data-tooltip-content="Entrar no Discord do JholyGPT"
             >
               <DiscordLogo
                 weight="fill"
