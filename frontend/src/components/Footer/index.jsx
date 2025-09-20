@@ -45,69 +45,14 @@ export default function Footer() {
   // to prevent pop-in.
   if (footerData === false) return null;
 
+  // FOOTER HARDCODADO REMOVIDO - Apenas footer configurável será usado
+  // Agora apenas ícones configurados no painel admin serão exibidos
   if (!Array.isArray(footerData) || footerData.length === 0) {
     return (
       <div className="flex justify-center mb-2">
         <div className="flex space-x-4">
-          <div className="flex w-fit">
-            <Link
-              to={paths.github()}
-              target="_blank"
-              rel="noreferrer"
-              className="transition-all duration-300 p-2 rounded-full bg-theme-sidebar-footer-icon hover:bg-theme-sidebar-footer-icon-hover"
-              aria-label="Encontre-nos no GitHub"
-              data-tooltip-id="footer-item"
-              data-tooltip-content="Ver código fonte no GitHub"
-            >
-              <GithubLogo
-                weight="fill"
-                className="h-5 w-5"
-                color="var(--theme-sidebar-footer-icon-fill)"
-              />
-            </Link>
-          </div>
-          <div className="flex w-fit">
-            <Link
-              to={paths.docs()}
-              target="_blank"
-              rel="noreferrer"
-              className="transition-all duration-300 p-2 rounded-full bg-theme-sidebar-footer-icon hover:bg-theme-sidebar-footer-icon-hover"
-              aria-label="Documentação"
-              data-tooltip-id="footer-item"
-              data-tooltip-content="Abrir documentação de ajuda do JholyGPT"
-            >
-              <BookOpen
-                weight="fill"
-                className="h-5 w-5"
-                color="var(--theme-sidebar-footer-icon-fill)"
-              />
-            </Link>
-          </div>
-          <div className="flex w-fit">
-            <Link
-              to={paths.discord()}
-              target="_blank"
-              rel="noreferrer"
-              className="transition-all duration-300 p-2 rounded-full bg-theme-sidebar-footer-icon hover:bg-theme-sidebar-footer-icon-hover"
-              aria-label="Entrar no nosso servidor Discord"
-              data-tooltip-id="footer-item"
-              data-tooltip-content="Entrar no Discord do JholyGPT"
-            >
-              <DiscordLogo
-                weight="fill"
-                className="h-5 w-5"
-                color="var(--theme-sidebar-footer-icon-fill)"
-              />
-            </Link>
-          </div>
           {!isMobile && <SettingsButton />}
         </div>
-        <Tooltip
-          id="footer-item"
-          place="top"
-          delayShow={300}
-          className="tooltip !text-xs z-99"
-        />
       </div>
     );
   }
