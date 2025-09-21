@@ -74,9 +74,14 @@ start_dev() {
         return 1
     fi
 
+    # Get configured ports
+    local server_port=$(grep "^SERVER_PORT=" server/.env.development 2>/dev/null | cut -d= -f2 || echo "3002")
+    local frontend_port=$((server_port - 1))
+
     echo "🌐 Iniciando serviços..."
-    echo "- Server: http://localhost:3001"
-    echo "- Frontend: http://localhost:3000"
+    echo "- Server: http://localhost:$server_port"
+    echo "- Frontend: http://localhost:$frontend_port"
+    echo "- API: http://localhost:$server_port/api"
     echo "- Collector: port 8888"
     echo ""
 
@@ -151,11 +156,29 @@ start_prod_local() {
 check_status() {
     echo -e "${BLUE}📊 Status dos serviços...${NC}"
 
-    # Verificar AnythingLLM
-    if curl -s http://localhost:3001/api/ping > /dev/null 2>&1; then
-        echo -e "${GREEN}✅ AnythingLLM: Online${NC}"
+    # Get configured ports
+    local server_port=$(grep "^SERVER_PORT=" server/.env.development 2>/dev/null | cut -d= -f2 || echo "3002")
+    local frontend_port=$((server_port - 1))
+
+    # Verificar Server API
+    if curl -s http://localhost:$server_port/api/ping > /dev/null 2>&1; then
+        echo -e "${GREEN}✅ Server API: Online (port $server_port)${NC}"
     else
-        echo -e "${YELLOW}⚠️  AnythingLLM: Offline${NC}"
+        echo -e "${YELLOW}⚠️  Server API: Offline (port $server_port)${NC}"
+    fi
+
+    # Verificar Frontend
+    if curl -s http://localhost:$frontend_port > /dev/null 2>&1; then
+        echo -e "${GREEN}✅ Frontend: Online (port $frontend_port)${NC}"
+    else
+        echo -e "${YELLOW}⚠️  Frontend: Offline (port $frontend_port)${NC}"
+    fi
+
+    # Verificar Collector
+    if curl -s http://localhost:8888/ping > /dev/null 2>&1; then
+        echo -e "${GREEN}✅ Collector: Online (port 8888)${NC}"
+    else
+        echo -e "${YELLOW}⚠️  Collector: Offline (port 8888)${NC}"
     fi
 
     # Verificar se API key está configurada
@@ -165,6 +188,16 @@ check_status() {
         else
             echo -e "${GREEN}✅ API Key: Configurada${NC}"
         fi
+    fi
+
+    # Verificar processos Node.js
+    echo ""
+    echo "⚙️  Processos Node.js:"
+    local node_processes=$(ps aux | grep -E "(yarn dev|nodemon.*index.js)" | grep -v grep | wc -l)
+    if [ "$node_processes" -gt 0 ]; then
+        echo -e "${GREEN}   • $node_processes processos de desenvolvimento rodando${NC}"
+    else
+        echo -e "${YELLOW}   • Nenhum processo de desenvolvimento detectado${NC}"
     fi
 
     # Verificar containers Docker
