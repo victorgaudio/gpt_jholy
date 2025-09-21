@@ -12,20 +12,33 @@ AnythingLLM is a full-stack application that enables users to turn documents int
 
 ## Development Commands
 
-### Quick Start (Lean Setup)
+### 🚀 Automated Workflow (Recommended)
 ```bash
-scripts/setup-simple.sh         # Setup in 2 minutes with API keys
-scripts/manage-env-simple.sh dev # Start development (opens multiple terminals)
-scripts/manage-env-simple.sh status # Check services status
-scripts/manage-env-simple.sh stop   # Stop all services
+# Primary commands (Makefile)
+make install     # Complete setup (dependencies, configs, database, validation)
+make dev         # Start all development services with health checks
+make status      # Check health of all services
+make stop        # Stop all services cleanly
+make health      # Run comprehensive health check
+make reset       # Complete project reset
+
+# Alternative commands (Yarn)
+yarn quick-start    # Setup + start in one command
+yarn quick-status   # Health check and service status
+yarn quick-dev      # Start development with validation
+yarn port:fix       # Fix port conflicts automatically
 ```
 
-### Initial Setup
+### 🔧 Advanced Commands
 ```bash
-scripts/setup-simple.sh      # Complete setup with API configuration
-# OR manual setup:
-yarn setup                   # Install dependencies and configure ENV files for all modules
-yarn prisma:setup           # Generate Prisma client, run migrations, and seed database
+# Health and diagnostics
+./scripts/health-check.sh --comprehensive  # Full system validation
+./scripts/port-validator.sh status         # Check port usage
+./scripts/port-validator.sh force          # Reset ports to defaults
+
+# Traditional setup (still supported)
+./scripts/setup-simple.sh                  # Setup with validation
+./scripts/manage-env-simple.sh dev         # Start development
 ```
 
 ### Development Environments
@@ -368,3 +381,40 @@ pm2 restart all
 curl -I https://domain.com  # Should return 200 OK
 pm2 status                  # All services should be 'online'
 ```
+
+## 🎯 Workflow Optimization (Latest Improvements)
+
+### Automated Setup and Validation
+This project now includes comprehensive automation for development workflow:
+
+**Key Features Implemented:**
+- ✅ **One-command setup**: `make install` handles everything
+- ✅ **Intelligent health checks**: Automatic validation of dependencies, configs, and services
+- ✅ **Port conflict resolution**: Automatic detection and correction of port conflicts
+- ✅ **Service orchestration**: All services start with proper validation
+- ✅ **Visual feedback**: Clear, colored output for all operations
+
+### Development Workflow Best Practices
+
+**For New Developers:**
+1. Use `make install` for initial setup
+2. Use `make dev` for daily development
+3. Use `make status` to check system health
+4. Consult `COMANDOS_RAPIDOS.md` for quick reference
+
+**For Troubleshooting:**
+1. Always start with `make health` for diagnostics
+2. Use `yarn port:fix` for port-related issues
+3. Use `make reset` for complete environment reset
+4. Check `docs/feat_easy_start/` for detailed documentation
+
+**For CI/CD Integration:**
+- All commands are designed to be automation-friendly
+- Health checks provide clear exit codes
+- Scripts are idempotent and safe to re-run
+
+### Documentation Structure Updates
+- **Branch-specific docs** in `docs/[branch-name]/`
+- **Quick reference** in `COMANDOS_RAPIDOS.md`
+- **Comprehensive guides** in individual session docs
+- **Troubleshooting** centralized with automatic diagnostics

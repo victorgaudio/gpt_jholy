@@ -1,8 +1,12 @@
 #!/bin/bash
 # Setup Enxuto AnythingLLM - APIs Online
 # Zero overhead local, setup em 2 minutos
+# Enhanced with validation and reset capabilities
 
 set -e
+
+# Configuration
+RESET_MODE=0
 
 # Cores para output
 GREEN='\033[0;32m'
@@ -152,10 +156,120 @@ show_next_steps() {
     echo "🤝 Compatível com todos os 20+ LLM providers suportados"
 }
 
+# Reset configurations
+reset_configs() {
+    if [ $RESET_MODE -eq 1 ]; then
+        echo -e "${YELLOW}🔄 Resetting configurations...${NC}"
+
+        # Remove existing env files
+        rm -f server/.env.development frontend/.env collector/.env
+
+        # Copy fresh templates
+        cp server/.env.example server/.env.development
+        cp frontend/.env.example frontend/.env
+        cp collector/.env.example collector/.env
+
+        echo -e "${GREEN}✅ Configurations reset to defaults${NC}"
+    fi
+}
+
+# Enhanced validation
+validate_installation() {
+    echo -e "${BLUE}🔍 Validating installation...${NC}"
+
+    # Check if all required files exist
+    local required_files=(
+        "server/.env.development"
+        "frontend/.env"
+        "collector/.env"
+        "server/storage/anythingllm.db"
+    )
+
+    local validation_passed=1
+
+    for file in "${required_files[@]}"; do
+        if [ -f "$file" ]; then
+            echo -e "${GREEN}✅ $file${NC}"
+        else
+            echo -e "${YELLOW}⚠️  $file (will be created)${NC}"
+            if [[ $file == *".db" ]]; then
+                validation_passed=0
+            fi
+        fi
+    done
+
+    # Check node_modules
+    local modules=("server/node_modules" "frontend/node_modules" "collector/node_modules")
+    for module_dir in "${modules[@]}"; do
+        if [ -d "$module_dir" ]; then
+            echo -e "${GREEN}✅ $(dirname $module_dir) dependencies${NC}"
+        else
+            echo -e "${RED}❌ $(dirname $module_dir) dependencies missing${NC}"
+            validation_passed=0
+        fi
+    done
+
+    if [ $validation_passed -eq 1 ]; then
+        echo -e "${GREEN}✅ Installation validation passed${NC}"
+    else
+        echo -e "${YELLOW}⚠️  Some components need initialization${NC}"
+    fi
+
+    return 0
+}
+
+# Parse command line arguments
+parse_args() {
+    while [[ $# -gt 0 ]]; do
+        case $1 in
+            --reset-configs)
+                RESET_MODE=1
+                shift
+                ;;
+            --help|-h)
+                show_help
+                exit 0
+                ;;
+            *)
+                echo -e "${RED}❌ Unknown option: $1${NC}"
+                show_help
+                exit 1
+                ;;
+        esac
+    done
+}
+
+# Show help
+show_help() {
+    echo -e "${BLUE}📋 AnythingLLM Setup Help${NC}"
+    echo ""
+    echo "Usage: $0 [options]"
+    echo ""
+    echo "Options:"
+    echo "  --reset-configs    Reset environment configurations to defaults"
+    echo "  --help, -h         Show this help message"
+    echo ""
+    echo "Examples:"
+    echo "  $0                 # Normal setup"
+    echo "  $0 --reset-configs # Reset and setup"
+}
+
 # Main
 main() {
+    parse_args "$@"
+
+    if [ $RESET_MODE -eq 1 ]; then
+        echo -e "${YELLOW}🔄 Reset mode enabled${NC}"
+        echo ""
+    fi
+
     check_deps
     echo ""
+
+    reset_configs
+    if [ $RESET_MODE -eq 1 ]; then
+        echo ""
+    fi
 
     setup_project
     echo ""
@@ -164,6 +278,9 @@ main() {
     echo ""
 
     setup_api_key
+    echo ""
+
+    validate_installation
     echo ""
 
     test_setup

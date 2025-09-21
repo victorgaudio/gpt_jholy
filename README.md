@@ -168,19 +168,19 @@ Mintplex Labs & the community maintain a number of deployment methods, scripts, 
 
 ## How to setup for development
 
-### 🚀 Quick Start (Lean Setup - Recommended)
+### 🚀 Quick Start (Automated Setup - Recommended)
 
-For a fast, lean setup using online APIs instead of heavy local models:
+**One-Command Setup** - Complete installation and start in seconds:
 
 ```bash
-# Automated setup (2 minutes)
-./scripts/setup-simple.sh
+# Option 1: Makefile (Recommended)
+make install    # Complete setup (dependencies, configs, database)
+make dev        # Start all development services
+make status     # Check health of all services
 
-# Start development (opens 3 terminals on macOS)
-./scripts/manage-env-simple.sh dev
-
-# Check status
-./scripts/manage-env-simple.sh status
+# Option 2: Yarn Scripts (Alternative)
+yarn quick-start    # Setup + start in one command
+yarn quick-status   # Health check and service status
 ```
 
 **Requirements:**
@@ -188,14 +188,32 @@ For a fast, lean setup using online APIs instead of heavy local models:
 - Node.js ≥ 18 and Yarn ≥ 1.22
 
 **Result:**
-- Frontend: http://localhost:3004 (or first available port)
-- Backend: http://localhost:3002/api
+- Frontend: http://localhost:3001 (auto-configured)
+- Backend: http://localhost:3002/api (auto-configured)
+- All services validated and running
+- Automatic port conflict resolution
 - Uses OpenAI GPT-4o-mini (cost-effective for development)
-- Zero friction for Digital Ocean deployment
 
-📖 **[Complete Development Guide](docs/deploy-production/desenvolvimento-local.md)** | 🔧 **[Troubleshooting](docs/deploy-production/troubleshooting-deploy-production.md)**
+📖 **[Complete Development Guide](docs/feat_easy_start/sessao-otimizacao-workflow.md)** | 🔧 **[Quick Commands Reference](COMANDOS_RAPIDOS.md)** | 🛠️ **[Troubleshooting](docs/deploy-production/troubleshooting-deploy-production.md)**
 
-> **📁 Documentation Structure**: Branch-specific docs are organized in `docs/[branch-name]/` to track development progress per feature. Current branch docs: `docs/deploy-production/`
+> **📁 Documentation Structure**: Branch-specific docs are organized in `docs/[branch-name]/` to track development progress per feature. Latest improvements: `docs/feat_easy_start/`
+
+### ⚡ Additional Quick Commands
+
+```bash
+# Troubleshooting
+make health         # Comprehensive health check
+yarn port:fix       # Fix port conflicts automatically
+make reset          # Complete project reset
+
+# Development workflow
+make stop           # Stop all services
+make logs           # View aggregated logs
+yarn quick-health   # Detailed system diagnostics
+
+# Get help
+make help           # Show all available commands
+```
 
 ### 🔧 Local Development Setup Details
 
@@ -208,10 +226,10 @@ For a fast, lean setup using online APIs instead of heavy local models:
 #### **Port Configuration**
 The application uses these default ports:
 - **Server**: 3002 (API endpoints)
-- **Frontend**: 3004 (web interface)
+- **Frontend**: 3001 (web interface)
 - **Collector**: 8888 (document processing)
 
-If ports are in use, the setup script will automatically find available ports.
+**Automatic Port Management**: The setup includes intelligent port conflict detection and resolution. If default ports are in use, the system automatically configures alternative ports and updates all configurations accordingly.
 
 #### **Environment Variables**
 Key configuration files created during setup:
