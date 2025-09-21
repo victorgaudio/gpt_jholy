@@ -193,9 +193,91 @@ For a fast, lean setup using online APIs instead of heavy local models:
 - Uses OpenAI GPT-4o-mini (cost-effective for development)
 - Zero friction for Digital Ocean deployment
 
-📖 **[Complete Development Guide](docs/feat_deploy_local/desenvolvimento-local.md)** | 🔧 **[Troubleshooting](docs/feat_deploy_local/troubleshooting-cors-portas.md)**
+📖 **[Complete Development Guide](docs/deploy-production/desenvolvimento-local.md)** | 🔧 **[Troubleshooting](docs/deploy-production/troubleshooting-deploy-production.md)**
 
-> **📁 Documentation Structure**: Branch-specific docs are organized in `docs/[branch-name]/` to track development progress per feature. Current branch docs: `docs/feat_deploy_local/`
+> **📁 Documentation Structure**: Branch-specific docs are organized in `docs/[branch-name]/` to track development progress per feature. Current branch docs: `docs/deploy-production/`
+
+### 🔧 Local Development Setup Details
+
+#### **System Requirements**
+- **Node.js**: 18.x or higher (tested with 20.x)
+- **Yarn**: 1.22 or higher
+- **Git**: For cloning and version control
+- **OpenAI API Key**: For LLM functionality ([get yours here](https://platform.openai.com/api-keys))
+
+#### **Port Configuration**
+The application uses these default ports:
+- **Server**: 3002 (API endpoints)
+- **Frontend**: 3004 (web interface)
+- **Collector**: 8888 (document processing)
+
+If ports are in use, the setup script will automatically find available ports.
+
+#### **Environment Variables**
+Key configuration files created during setup:
+- `server/.env.development` - Main server configuration
+- `frontend/.env` - Frontend API endpoint configuration
+- `collector/.env` - Document collector configuration
+
+#### **Common Setup Issues**
+- **Port conflicts**: Run `lsof -i :3001 :3002 :3000 :8888` to check port usage
+- **Permission errors**: Ensure write permissions in project directory
+- **API key issues**: Verify OpenAI API key is valid and has credits
+
+## 🚀 Production Deployment
+
+### **Native Deployment (Recommended)**
+
+For production environments, we recommend native Node.js deployment over Docker for better performance and simpler maintenance.
+
+#### **Quick Production Setup**
+```bash
+# 1. Install Node.js 20.x + Yarn + PM2
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+apt-get install -y nodejs
+npm install -g yarn pm2
+
+# 2. Deploy application
+git clone [your-repo] /opt/anythingllm-native
+cd /opt/anythingllm-native
+yarn install --production
+
+# 3. Build frontend
+cd frontend && yarn build
+mkdir -p ../server/public
+cp -r dist/* ../server/public/
+
+# 4. Configure PM2
+pm2 start ecosystem.config.cjs
+pm2 startup && pm2 save
+```
+
+#### **SSL/HTTPS Setup**
+```bash
+# Automatic SSL with Let's Encrypt
+certbot --nginx -d your-domain.com --non-interactive --agree-tos --email your-email
+```
+
+**Result**: Secure production deployment with automatic SSL renewal.
+
+### **Performance Comparison**
+
+| Metric | Docker | Native PM2 |
+|--------|--------|------------|
+| **RAM Usage** | ~2GB | ~800MB |
+| **Boot Time** | 30-60s | 5-10s |
+| **CPU Overhead** | Higher | Lower |
+| **Debugging** | Complex | Direct |
+| **Maintenance** | docker-compose | pm2 commands |
+
+### **Production Documentation**
+
+- **[🔄 Docker→Native Migration](docs/sessao-migracao-ssl/migracao-docker-native.md)** - Complete migration guide
+- **[🔒 SSL Implementation](docs/sessao-migracao-ssl/implementacao-ssl.md)** - HTTPS setup with Let's Encrypt
+- **[🛠️ Troubleshooting](docs/sessao-migracao-ssl/problemas-solucoes.md)** - Common issues and solutions
+- **[💬 Prompts Guide](docs/sessao-migracao-ssl/prompts-utilizados.md)** - Knowledge base for similar tasks
+
+**📊 Case Study**: [Complete migration documentation](docs/sessao-migracao-ssl/) - Real-world Docker→Native migration with SSL implementation.
 
 ### 📋 Manual Setup
 

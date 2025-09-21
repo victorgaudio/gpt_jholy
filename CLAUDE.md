@@ -76,6 +76,27 @@ cp terraform.tfvars.example terraform.tfvars  # Configure your settings
 terraform init && terraform plan && terraform apply
 ```
 
+### Production Native Deployment
+```bash
+# Install production environment
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+apt-get install -y nodejs
+npm install -g yarn pm2
+
+# Deploy and configure
+git clone [repo] /opt/anythingllm-native
+cd /opt/anythingllm-native
+yarn install --production
+cd frontend && yarn build && cp -r dist/* ../server/public/
+
+# Start with PM2
+pm2 start ecosystem.config.cjs
+pm2 startup && pm2 save
+
+# Configure SSL
+certbot --nginx -d domain.com --non-interactive --agree-tos --email admin@domain.com
+```
+
 ## Architecture Overview
 
 ### Server (Node.js + Express)
@@ -153,19 +174,81 @@ No configuration changes needed for LLM providers between environments.
 - Alternative (if conflicts): Server 3002, Frontend auto-detects free port
 - Always update frontend/.env when changing server port
 
+### Production Deployment
+
+#### Native vs Docker
+- **Native (Recommended)**: Better performance, easier debugging, PM2 process management
+- **Docker**: Containerized, good for complex multi-service setups
+
+#### PM2 Configuration
+```javascript
+// ecosystem.config.cjs (required .cjs extension for ES6 projects)
+module.exports = {
+  apps: [
+    {
+      name: 'anythingllm-server',
+      script: 'server/index.js',
+      cwd: '/opt/anythingllm-native',
+      env: {
+        NODE_ENV: 'production',
+        STORAGE_DIR: '/opt/anythingllm-native/server/storage',
+        // ... all environment variables inline (required)
+      },
+      instances: 1,
+      autorestart: true,
+      max_restarts: 3
+    }
+  ]
+};
+```
+
+#### Critical Production Setup Steps
+1. **Frontend Assets**: `cp -r frontend/dist/* server/public/` (AnythingLLM expects assets here)
+2. **Environment Variables**: Use inline config in PM2, not env_file for ES6 modules
+3. **Storage Directory**: Must be explicitly defined in environment
+4. **SSL Setup**: Use certbot --nginx for automatic configuration
+
 ## Documentation Structure
 
 ### Branch-Specific Documentation
 - All development documentation is organized by branch: `docs/[branch-name]/`
-- Current branch documentation: `docs/feat_deploy_local/`
+- Current branch documentation: `docs/deploy-production/`
 - This approach tracks development progress and decisions per feature
 - When merging branches, relevant docs can be moved to main docs folder
 
 ### Documentation Files
 - `sessao-[branch-name].md` - Complete session documentation with commit messages
-- `desenvolvimento-local.md` - Local development guide
-- `troubleshooting-*.md` - Specific troubleshooting guides
-- `prompts-utilizados.md` - Prompt knowledge base for the session
+- `troubleshooting-[branch-name].md` - Specific troubleshooting guides for the branch
+- `prompts-utilizados-[branch-name].md` - Prompt knowledge base for the session
+- `commit-message-[branch-name].md` - Structured commit message ready for use
+
+### Documentation Standards (Established in deploy/production)
+- **Comprehensive Coverage**: Document problems, solutions, and learnings in real-time
+- **Template Creation**: Provide reusable templates for commands, configs, and prompts
+- **Troubleshooting Focus**: Detailed solutions for technical issues encountered
+- **Knowledge Base**: Capture effective prompts and command patterns for reuse
+
+### Session-Specific Learnings (deploy/production Branch)
+
+#### **Critical Technical Insights**
+- **PM2 + ES6 Modules**: Always use `.cjs` extension for PM2 config files in ES6 projects
+- **Environment Variables**: Use inline `env` configuration instead of `env_file` for reliability
+- **Static Assets**: AnythingLLM expects frontend build in `server/public/`, not `frontend/dist/`
+- **Troubleshooting Pattern**: Document problems immediately when found, with exact error messages
+
+#### **Effective Prompt Patterns Identified**
+```
+# High Success Rate Patterns:
+1. "Execute [TASK] following [SPECIFIC_STEPS] and document [OUTCOMES]"
+2. "Diagnose [PROBLEM] by checking [SPECIFIC_AREAS] and apply [KNOWN_SOLUTIONS]"
+3. "Setup [ENVIRONMENT] using [DOCUMENTED_PROCESS] and validate [CHECKPOINTS]"
+```
+
+#### **Session Management Best Practices**
+- **TodoWrite Integration**: Use TodoWrite tool for complex multi-step tasks
+- **Real-time Documentation**: Create docs during execution, not after
+- **Template Creation**: Generate reusable templates for future sessions
+- **Validation Loops**: Test functionality after each major change
 
 ## Code Style
 
@@ -227,4 +310,61 @@ yarn setup
 curl http://localhost:3002/api/ping  # Server
 curl http://localhost:8888/ping      # Collector
 open http://localhost:3004           # Frontend
+```
+
+### Troubleshooting Produção
+
+#### PM2 Issues
+```bash
+# Check PM2 status and logs
+pm2 status
+pm2 logs --lines 50
+
+# Restart specific service
+pm2 restart anythingllm-server
+
+# Environment variables debug
+pm2 show anythingllm-server | grep -A 20 "Environment"
+```
+
+#### Static Files MIME Type Issues
+```bash
+# Verify assets location
+ls -la server/public/
+# Should contain: index.html, index.js, index.css
+
+# Test MIME types
+curl -I http://localhost:3001/index.js
+# Should return: Content-Type: application/javascript
+
+# Fix if needed
+cp -r frontend/dist/* server/public/
+pm2 restart anythingllm-server
+```
+
+#### SSL Issues
+```bash
+# Check certificate status
+certbot certificates
+
+# Test SSL
+curl -I https://domain.com
+
+# Check renewal timer
+systemctl status certbot.timer
+
+# Manual renewal if needed
+certbot renew --force-renewal
+```
+
+#### Common Production Fixes
+```bash
+# Complete reset
+pm2 stop all
+cp -r frontend/dist/* server/public/
+pm2 restart all
+
+# Verify all services
+curl -I https://domain.com  # Should return 200 OK
+pm2 status                  # All services should be 'online'
 ```

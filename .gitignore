@@ -10,3 +10,16 @@ aws_cf_deploy_anything_llm.json
 yarn.lock
 *.bak
 .idea
+
+# Deploy and backup files
+*.tar.gz
+DEPLOY_GUIDE.md
+INSTRUCOES_DEPLOY.md
+scripts/deploy-production.sh
+scripts/export-local-data.sh
+
+# Terraform files
+cloud-deployments/digitalocean/terraform/.terraform/
+cloud-deployments/digitalocean/terraform/.terraform.lock.hcl
+cloud-deployments/digitalocean/terraform/terraform.tfvars
+cloud-deployments/digitalocean/terraform/user_data_ssl.tpl
