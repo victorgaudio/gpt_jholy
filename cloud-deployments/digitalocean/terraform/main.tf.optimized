@@ -40,6 +40,36 @@ variable "ssh_key_ids" {
   default     = []
 }
 
+variable "domain_name" {
+  description = "Nome do domínio principal"
+  type        = string
+  default     = "gpt.jholy.com.br"
+}
+
+variable "backup_enabled" {
+  description = "Habilitar backups automáticos"
+  type        = bool
+  default     = true
+}
+
+variable "monitoring_enabled" {
+  description = "Habilitar monitoramento"
+  type        = bool
+  default     = true
+}
+
+variable "volume_size" {
+  description = "Tamanho do volume em GB"
+  type        = number
+  default     = 20
+}
+
+variable "tags" {
+  description = "Tags para recursos"
+  type        = list(string)
+  default     = ["anythingllm", "production"]
+}
+
 provider "digitalocean" {
   token = var.do_token
 }
@@ -57,11 +87,11 @@ resource "digitalocean_droplet" "anythingllm" {
   size      = var.size
   ssh_keys  = var.ssh_key_ids
 
-  user_data = templatefile("${path.module}/user_data_optimized.tpl", {
+  user_data = templatefile("${path.module}/user_data_ssl.tpl", {
     env_content = local.formatted_env_content
   })
 
-  tags = ["anythingllm", "production"]
+  tags = var.tags
 }
 
 # Configuração do firewall
@@ -121,9 +151,9 @@ resource "digitalocean_firewall" "anythingllm" {
 resource "digitalocean_volume" "anythingllm_storage" {
   region                  = var.region
   name                    = "${var.droplet_name}-storage"
-  size                    = 20
+  size                    = var.volume_size
   initial_filesystem_type = "ext4"
-  description             = "Armazenamento persistente para AnythingLLM"
+  description             = "Armazenamento persistente para ${var.domain_name}"
 }
 
 # Anexar volume ao droplet
@@ -155,6 +185,11 @@ output "droplet_ip" {
 
 output "droplet_url" {
   description = "URL para acessar AnythingLLM"
+  value       = "https://${var.domain_name}"
+}
+
+output "http_url" {
+  description = "URL HTTP temporária (enquanto DNS não propaga)"
   value       = "http://${digitalocean_droplet.anythingllm.ipv4_address}:3001"
 }
 
