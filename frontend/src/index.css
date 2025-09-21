@@ -1112,3 +1112,28 @@ does not extend the close button beyond the viewport. */
   -webkit-animation: fadein 0.3s linear forwards;
   animation: fadein 0.3s linear forwards;
 }
+
+/* Mobile Responsiveness Fixes for AnythingLLM */
+@media (max-width: 768px) {
+  /* Fix: Sidebar too wide on mobile - reduce from 292px to responsive width */
+  [style*="width: 292px"] {
+    width: 250px !important;
+  }
+
+  /* Fix: Settings link outside viewport - ensure footer is visible */
+  .absolute.bottom-0.left-0.right-0 {
+    position: relative !important;
+    margin-top: auto;
+  }
+
+  /* Fix: Sidebar container responsive width */
+  .relative.m-\[16px\].rounded-\[16px\].bg-theme-bg-sidebar {
+    min-width: 220px !important;
+  }
+
+  /* Fix: Ensure settings button is always accessible */
+  [data-tooltip-content="Open settings"] {
+    position: relative !important;
+    z-index: 10;
+  }
+}

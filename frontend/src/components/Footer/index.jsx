@@ -50,7 +50,7 @@ export default function Footer() {
   if (!Array.isArray(footerData) || footerData.length === 0) {
     return (
       <div className="flex justify-center mb-2">
-        <div className="flex space-x-4">{!isMobile && <SettingsButton />}</div>
+        <div className="flex space-x-4"><SettingsButton /></div>
       </div>
     );
   }
@@ -76,7 +76,7 @@ export default function Footer() {
             )}
           </a>
         ))}
-        {!isMobile && <SettingsButton />}
+        <SettingsButton />
       </div>
       <Tooltip
         id="footer-item"
